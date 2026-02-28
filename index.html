@@ -642,6 +642,8 @@
       <button onclick="document.getElementById('modalCGV').classList.add('open')" style="background:none;border:none;font-family:'Outfit',sans-serif;font-size:10px;color:var(--c-muted);cursor:pointer;text-decoration:underline;">CGV</button>
       &nbsp;·&nbsp;
       <button onclick="document.getElementById('modalRGPD').classList.add('open')" style="background:none;border:none;font-family:'Outfit',sans-serif;font-size:10px;color:var(--c-muted);cursor:pointer;text-decoration:underline;">Politique de confidentialité</button>
+      &nbsp;·&nbsp;
+      <button onclick="document.getElementById('modalRecuperer').classList.add('open')" style="background:none;border:none;font-family:'Outfit',sans-serif;font-size:10px;color:var(--c-muted);cursor:pointer;text-decoration:underline;">Récupérer mon accès</button>
     </span>
   </footer>
 
@@ -872,6 +874,36 @@
       <div class="modal-cta">
         <button class="btn-dismiss" onclick="document.getElementById('modalRGPD').classList.remove('open')" style="color:rgba(255,255,255,0.6);">Fermer</button>
       </div>
+    </div>
+  </div>
+</div>
+
+<!-- Récupérer mon accès -->
+<div class="modal-overlay" id="modalRecuperer">
+  <div class="modal" style="max-width:420px;">
+    <div class="modal-hero" style="padding:20px 24px 18px;">
+      <div class="modal-hero-text">
+        <h2 style="font-size:20px; letter-spacing:1.5px;">🔑 RÉCUPÉRER <span>MON ACCÈS</span></h2>
+        <p>Vous avez déjà acheté Bulletinator Pro ? Entrez votre email pour retrouver votre accès illimité sur cet appareil.</p>
+      </div>
+    </div>
+    <div class="modal-body">
+      <form id="recupererForm">
+        <input
+          id="recupererEmail"
+          type="email"
+          placeholder="votre@email.fr"
+          autocomplete="email"
+          style="width:100%; padding:12px 14px; border-radius:8px; border:1.5px solid rgba(255,255,255,0.15); background:rgba(255,255,255,0.08); color:#fff; font-family:'Outfit',sans-serif; font-size:15px; margin-bottom:10px; box-sizing:border-box; outline:none;"
+        />
+        <div id="recupererMsg" style="font-size:13px; min-height:18px; margin-bottom:14px;"></div>
+        <div class="modal-cta">
+          <button type="submit" class="btn-paywall" style="background:#2563eb; box-shadow:0 6px 20px rgba(37,99,235,0.4);">
+            <span>✓ Récupérer mon accès</span>
+          </button>
+          <button type="button" class="btn-dismiss" onclick="document.getElementById('modalRecuperer').classList.remove('open')">Fermer</button>
+        </div>
+      </form>
     </div>
   </div>
 </div>
@@ -2663,10 +2695,63 @@ emailForm.addEventListener('submit', async (e) => {
 // Le visiteur peut utiliser les 30 copies librement sans jamais donner son email
 
 // Fermeture des modales légales au clic sur le fond
-['modalMentions','modalCGV','modalRGPD'].forEach(id => {
+['modalMentions','modalCGV','modalRGPD','modalRecuperer'].forEach(id => {
   document.getElementById(id).addEventListener('click', function(e){
     if(e.target === this) this.classList.remove('open');
   });
+});
+
+// ════════════════════════════════════════
+// MODALE "RÉCUPÉRER MON ACCÈS"
+// ════════════════════════════════════════
+document.getElementById('recupererForm').addEventListener('submit', async (e) => {
+  e.preventDefault();
+  const email = document.getElementById('recupererEmail').value.trim();
+  const msg   = document.getElementById('recupererMsg');
+
+  if (!email || !email.includes('@')) {
+    msg.style.color = '#f87171';
+    msg.textContent = 'Veuillez entrer une adresse email valide.';
+    return;
+  }
+
+  msg.style.color = 'rgba(255,255,255,0.5)';
+  msg.textContent = '⏳ Vérification en cours…';
+
+  try {
+    const { data, error } = await db.from('users')
+      .select('paid, copy_count')
+      .eq('email', email)
+      .single();
+
+    if (error || !data) {
+      // Email inconnu — peut-être qu'il a payé mais on n'a pas son email
+      msg.style.color = '#f87171';
+      msg.textContent = 'Aucun accès trouvé pour cet email. Contactez arlorib@proton.me';
+      return;
+    }
+
+    if (!data.paid) {
+      msg.style.color = '#fbbf24';
+      msg.textContent = 'Cet email n\'est pas associé à un accès illimité.';
+      return;
+    }
+
+    // Email trouvé et payant — on déverrouille localement
+    state.unlocked  = true;
+    state.userEmail = email;
+    localStorage.setItem('blt_unlocked', '1');
+    localStorage.setItem('blt_email', email);
+    updateCounterUI();
+
+    msg.style.color = '#4ade80';
+    msg.textContent = '✅ Accès illimité activé !';
+    setTimeout(() => document.getElementById('modalRecuperer').classList.remove('open'), 1200);
+
+  } catch(err) {
+    msg.style.color = '#f87171';
+    msg.textContent = 'Erreur de connexion. Réessayez dans un instant.';
+  }
 });
 
 // ════════════════════════════════════════
