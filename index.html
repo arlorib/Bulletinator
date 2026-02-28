@@ -519,7 +519,7 @@
     </div>
   </div>
   <div class="copy-counter">
-    <div class="counter-label">Copies gratuites restantes</div>
+    <div class="counter-label">Appréciations gratuites restantes</div>
     <div class="counter-bar-wrap">
       <div class="counter-bar"><div class="counter-fill" id="counterFill"></div></div>
       <div class="counter-num" id="counterNum">30</div>
@@ -619,7 +619,7 @@
   <div class="output-card">
     <div class="output-top">
       <div class="output-label">Appréciation générée</div>
-      <div class="copy-left-badge" id="copyLeftBadge">30 copies gratuites restantes</div>
+      <div class="copy-left-badge" id="copyLeftBadge">30 appréciations gratuites restantes</div>
     </div>
     <div id="output" class="placeholder-state">→ Cliquez sur une case pour générer une appréciation.</div>
     <div class="output-actions">
@@ -635,6 +635,14 @@
     <button id="suggestionBtn" style="background:transparent; border:1px solid rgba(0,0,0,0.2); border-radius:999px; padding:6px 14px; font-family:'Outfit',sans-serif; font-size:11px; color:var(--c-muted); cursor:pointer; transition: all .15s;">
       💡 Suggérer une amélioration
     </button>
+    <br><br>
+    <span style="font-size:10px; color:var(--c-muted);">
+      <button onclick="document.getElementById('modalMentions').classList.add('open')" style="background:none;border:none;font-family:'Outfit',sans-serif;font-size:10px;color:var(--c-muted);cursor:pointer;text-decoration:underline;">Mentions légales</button>
+      &nbsp;·&nbsp;
+      <button onclick="document.getElementById('modalCGV').classList.add('open')" style="background:none;border:none;font-family:'Outfit',sans-serif;font-size:10px;color:var(--c-muted);cursor:pointer;text-decoration:underline;">CGV</button>
+      &nbsp;·&nbsp;
+      <button onclick="document.getElementById('modalRGPD').classList.add('open')" style="background:none;border:none;font-family:'Outfit',sans-serif;font-size:10px;color:var(--c-muted);cursor:pointer;text-decoration:underline;">Politique de confidentialité</button>
+    </span>
   </footer>
 
 </main>
@@ -756,6 +764,114 @@
           <button type="button" class="btn-dismiss" id="closeSuggestionBtn">Fermer</button>
         </div>
       </form>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════ -->
+<!-- MODALES LÉGALES                        -->
+<!-- ══════════════════════════════════════ -->
+
+<!-- Mentions légales -->
+<div class="modal-overlay" id="modalMentions">
+  <div class="modal" style="max-width:560px; max-height:85vh; overflow-y:auto;">
+    <div class="modal-hero" style="padding:20px 24px 16px;">
+      <div class="modal-hero-text">
+        <h2 style="font-size:20px; letter-spacing:1.5px;">MENTIONS <span>LÉGALES</span></h2>
+      </div>
+    </div>
+    <div class="modal-body" style="font-size:13px; line-height:1.8; color:rgba(255,255,255,0.75);">
+      <p><strong style="color:#fff;">Éditeur du site</strong><br>
+      Le site bulletinator.netlify.app est édité à titre personnel par <strong>arlorib</strong>, particulier.<br>
+      Contact : <a href="mailto:arlorib@proton.me" style="color:var(--c-red);">arlorib@proton.me</a></p>
+      <br>
+      <p><strong style="color:#fff;">Hébergement</strong><br>
+      Netlify, Inc. — 44 Montgomery Street, Suite 300, San Francisco, CA 94104, États-Unis.<br>
+      <a href="https://www.netlify.com" target="_blank" style="color:var(--c-red);">www.netlify.com</a></p>
+      <br>
+      <p><strong style="color:#fff;">Propriété intellectuelle</strong><br>
+      L'ensemble des contenus du site (textes, appréciations générées, interface) est la propriété de l'éditeur. Toute reproduction sans autorisation est interdite.</p>
+      <br>
+      <p><strong style="color:#fff;">Responsabilité</strong><br>
+      Les appréciations générées sont des suggestions automatiques. L'enseignant reste seul responsable du contenu final publié dans les bulletins scolaires.</p>
+      <br>
+      <div class="modal-cta">
+        <button class="btn-dismiss" onclick="document.getElementById('modalMentions').classList.remove('open')" style="color:rgba(255,255,255,0.6);">Fermer</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- CGV -->
+<div class="modal-overlay" id="modalCGV">
+  <div class="modal" style="max-width:560px; max-height:85vh; overflow-y:auto;">
+    <div class="modal-hero" style="padding:20px 24px 16px;">
+      <div class="modal-hero-text">
+        <h2 style="font-size:20px; letter-spacing:1.5px;">CONDITIONS GÉNÉRALES <span>DE VENTE</span></h2>
+      </div>
+    </div>
+    <div class="modal-body" style="font-size:13px; line-height:1.8; color:rgba(255,255,255,0.75);">
+      <p><strong style="color:#fff;">Vendeur</strong><br>
+      arlorib, particulier — contact : <a href="mailto:arlorib@proton.me" style="color:var(--c-red);">arlorib@proton.me</a></p>
+      <br>
+      <p><strong style="color:#fff;">Produit</strong><br>
+      Bulletinator Pro est un accès numérique illimité et à vie au service de génération d'appréciations de bulletin. Il s'agit d'un bien numérique immatériel.</p>
+      <br>
+      <p><strong style="color:#fff;">Prix</strong><br>
+      2,99 € TTC, paiement unique. Aucun abonnement, aucun renouvellement automatique.</p>
+      <br>
+      <p><strong style="color:#fff;">Paiement</strong><br>
+      Le paiement est sécurisé par Stripe. Les coordonnées bancaires ne sont jamais transmises à l'éditeur du site.</p>
+      <br>
+      <p><strong style="color:#fff;">Droit de rétractation</strong><br>
+      Conformément à l'article L.221-28 du Code de la consommation, le droit de rétractation ne s'applique pas aux contenus numériques dont l'exécution a commencé avec l'accord du consommateur. L'accès étant immédiat après paiement, aucun remboursement ne peut être accordé sauf dysfonctionnement avéré du service.</p>
+      <br>
+      <p><strong style="color:#fff;">Service après-vente</strong><br>
+      Pour tout problème d'accès après paiement, contactez : <a href="mailto:arlorib@proton.me" style="color:var(--c-red);">arlorib@proton.me</a></p>
+      <br>
+      <p><strong style="color:#fff;">Droit applicable</strong><br>
+      Les présentes CGV sont soumises au droit français.</p>
+      <br>
+      <div class="modal-cta">
+        <button class="btn-dismiss" onclick="document.getElementById('modalCGV').classList.remove('open')" style="color:rgba(255,255,255,0.6);">Fermer</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Politique de confidentialité / RGPD -->
+<div class="modal-overlay" id="modalRGPD">
+  <div class="modal" style="max-width:560px; max-height:85vh; overflow-y:auto;">
+    <div class="modal-hero" style="padding:20px 24px 16px;">
+      <div class="modal-hero-text">
+        <h2 style="font-size:20px; letter-spacing:1.5px;">POLITIQUE DE <span>CONFIDENTIALITÉ</span></h2>
+      </div>
+    </div>
+    <div class="modal-body" style="font-size:13px; line-height:1.8; color:rgba(255,255,255,0.75);">
+      <p><strong style="color:#fff;">Responsable du traitement</strong><br>
+      arlorib — <a href="mailto:arlorib@proton.me" style="color:var(--c-red);">arlorib@proton.me</a></p>
+      <br>
+      <p><strong style="color:#fff;">Données collectées</strong><br>
+      En cas d'achat uniquement : votre adresse email, transmise par Stripe lors du paiement. Cette donnée est utilisée exclusivement pour activer votre accès illimité.</p>
+      <br>
+      <p><strong style="color:#fff;">Données non collectées</strong><br>
+      Sans achat, aucune donnée personnelle n'est collectée. Le compteur de générations est stocké localement sur votre appareil (localStorage) et ne nous est pas transmis.</p>
+      <br>
+      <p><strong style="color:#fff;">Finalité</strong><br>
+      L'email collecté sert uniquement à identifier les utilisateurs ayant souscrit à l'accès illimité. Il n'est ni revendu, ni utilisé à des fins commerciales, ni transmis à des tiers.</p>
+      <br>
+      <p><strong style="color:#fff;">Durée de conservation</strong><br>
+      Les données sont conservées le temps nécessaire à la fourniture du service, sans limitation de durée pour les accès à vie.</p>
+      <br>
+      <p><strong style="color:#fff;">Vos droits (RGPD)</strong><br>
+      Conformément au Règlement Général sur la Protection des Données (UE 2016/679), vous disposez d'un droit d'accès, de rectification et de suppression de vos données. Pour exercer ces droits : <a href="mailto:arlorib@proton.me" style="color:var(--c-red);">arlorib@proton.me</a></p>
+      <br>
+      <p><strong style="color:#fff;">Cookies</strong><br>
+      Aucun cookie de tracking ou publicitaire n'est utilisé. Le site utilise uniquement le localStorage de votre navigateur pour mémoriser le compteur de générations.</p>
+      <br>
+      <div class="modal-cta">
+        <button class="btn-dismiss" onclick="document.getElementById('modalRGPD').classList.remove('open')" style="color:rgba(255,255,255,0.6);">Fermer</button>
+      </div>
     </div>
   </div>
 </div>
@@ -2314,6 +2430,9 @@ function applyPeriode(text){
 // GÉNÉRATION
 // ════════════════════════════════════════
 function generateText(x,y){
+  // On vérifie la limite AVANT de générer (pas à la copie)
+  if(!canCopy()){ openPaywall(); return; }
+
   const key=`${x},${y}`;
   const pool=getPool(x,y);
   if(!pool.length){ outputEl.textContent='(Aucune appréciation disponible)'; return; }
@@ -2334,6 +2453,9 @@ function generateText(x,y){
   outputEl.classList.remove('placeholder-state');
   outputEl.classList.add('has-text');
   copyBtn.disabled=false;
+
+  // On incrémente le compteur à la génération (pas à la copie)
+  incrementCopy();
 }
 
 // ════════════════════════════════════════
@@ -2346,7 +2468,7 @@ function updateCounterUI(){
   counterFillEl.style.width=pct+'%';
   copyLeftBadge.textContent=state.unlocked
     ? 'Accès illimité actif ✓'
-    : (MAX_FREE-state.copyCount)+' copies gratuites restantes';
+    : (MAX_FREE-state.copyCount)+' appréciations gratuites restantes';
   counterNumEl.classList.remove('warning','danger');
   copyLeftBadge.classList.remove('warning','danger');
   if(!state.unlocked && state.copyCount>=20){
@@ -2453,7 +2575,6 @@ function doCopy(){
   navigator.clipboard.writeText(text).then(()=>{
     copiedBadge.classList.add('show');
     setTimeout(()=>copiedBadge.classList.remove('show'),1200);
-    incrementCopy();
   }).catch(()=>{
     const range=document.createRange();
     range.selectNodeContents(outputEl);
@@ -2461,7 +2582,6 @@ function doCopy(){
     window.getSelection().addRange(range);
     copiedBadge.classList.add('show');
     setTimeout(()=>copiedBadge.classList.remove('show'),1200);
-    incrementCopy();
   });
 }
 copyBtn.addEventListener('click', doCopy);
@@ -2541,6 +2661,13 @@ emailForm.addEventListener('submit', async (e) => {
 
 // L'email est entièrement optionnel — on ne propose rien automatiquement
 // Le visiteur peut utiliser les 30 copies librement sans jamais donner son email
+
+// Fermeture des modales légales au clic sur le fond
+['modalMentions','modalCGV','modalRGPD'].forEach(id => {
+  document.getElementById(id).addEventListener('click', function(e){
+    if(e.target === this) this.classList.remove('open');
+  });
+});
 
 // ════════════════════════════════════════
 // FENÊTRE "SUGGÉRER UNE AMÉLIORATION"
