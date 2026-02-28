@@ -1,14 +1,5 @@
 <!DOCTYPE html>
 <html lang="fr">
-<!-- Google tag (gtag.js) -->
-<script async src="https://www.googletagmanager.com/gtag/js?id=G-L887KHMG3F"></script>
-<script>
-  window.dataLayer = window.dataLayer || [];
-  function gtag(){dataLayer.push(arguments);}
-  gtag('js', new Date());
-
-  gtag('config', 'G-L887KHMG3F');
-</script>
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
@@ -16,6 +7,8 @@
   <meta name="description" content="Générez des appréciations de bulletin scolaire en un clic. Gratuit pour les 30 premiers. Outil pour enseignants." />
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
+  <!-- SDK Supabase : la bibliothèque qui permet au site de parler à la base de données -->
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <style>
     :root {
       --c-bg: #f0ede6;
@@ -702,7 +695,44 @@
   </div>
 </div>
 
-<!-- Fenêtre suggestion -->
+<!-- Fenêtre demande d'email (apparaît après la 1ère copie) -->
+<div class="modal-overlay" id="emailOverlay">
+  <div class="modal" style="max-width:420px;">
+    <div class="modal-hero" style="padding:20px 24px 18px;">
+      <svg class="modal-hero-robot" width="52" height="52" viewBox="0 0 86 72" fill="none">
+        <rect x="28" y="0" width="4" height="8" fill="#c0392b"/><circle cx="30" cy="2" r="4" fill="#c0392b"/>
+        <rect x="10" y="8" width="40" height="28" rx="4" fill="#222f3e"/><rect x="12" y="10" width="36" height="24" rx="3" fill="#1a2530"/>
+        <rect x="16" y="15" width="10" height="8" rx="2" fill="#c0392b"/><rect x="34" y="15" width="10" height="8" rx="2" fill="#c0392b"/>
+        <rect x="18" y="17" width="6" height="4" rx="1" fill="#ff6b6b" opacity="0.9"/><rect x="36" y="17" width="6" height="4" rx="1" fill="#ff6b6b" opacity="0.9"/>
+      </svg>
+      <div class="modal-hero-text">
+        <h2 style="font-size:20px; letter-spacing:1.5px;">ENREGISTREZ <span>VOTRE ACCÈS</span></h2>
+        <p>Pour retrouver vos copies restantes sur n'importe quel appareil.</p>
+      </div>
+    </div>
+    <div class="modal-body">
+      <form id="emailForm">
+        <input
+          id="emailInput"
+          type="email"
+          placeholder="votre@email.fr"
+          autocomplete="email"
+          style="width:100%; padding:12px 14px; border-radius:8px; border:1.5px solid rgba(255,255,255,0.15); background:rgba(255,255,255,0.08); color:#fff; font-family:'Outfit',sans-serif; font-size:15px; margin-bottom:10px; box-sizing:border-box; outline:none;"
+        />
+        <div id="emailMsg" style="font-size:12px; color:rgba(255,255,255,0.4); margin-bottom:14px; min-height:16px;">
+          Votre email ne sera jamais partagé ni revendu.
+        </div>
+        <div class="modal-cta">
+          <button type="submit" class="btn-paywall" style="background:#2563eb; box-shadow:0 6px 20px rgba(37,99,235,0.4);">
+            <span>✓ Enregistrer mon accès</span>
+          </button>
+          <button type="button" class="btn-dismiss" id="skipEmailBtn">Continuer sans enregistrer</button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+
 <div class="modal-overlay" id="suggestionOverlay">
   <div class="modal" style="max-width:440px;">
     <div class="modal-hero" style="padding:20px 24px 18px;">
@@ -734,6 +764,14 @@
 
 <script>
 // ════════════════════════════════════════
+// CONNEXION SUPABASE
+// Supabase = la base de données en ligne qui stocke les utilisateurs
+// ════════════════════════════════════════
+const SUPABASE_URL  = 'https://vvgfdcmysrcnbabtvwjc.supabase.co';
+const SUPABASE_KEY  = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InZ2Z2ZkY215c3JjbmJhYnR2d2pjIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzIwMDg5MjQsImV4cCI6MjA4NzU4NDkyNH0.NtdY55NVX9Ja5fMqN4WnXgZxWx0ksNFx9tJFEwPJ_Hc';
+const db = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+
+// ════════════════════════════════════════
 // ÉTAT GLOBAL
 // ════════════════════════════════════════
 const MAX_FREE = 30;
@@ -743,59 +781,60 @@ const state = {
   history:   {},
   niveau:    'neutre',
   periode:   '',
-  email:     localStorage.getItem('blt_email') || null,
-  paid:      false,
-  copyCount: 0,
+  copyCount: parseInt(localStorage.getItem('blt_copies') || '0', 10),
+  unlocked:  localStorage.getItem('blt_unlocked') === '1',
+  userEmail: localStorage.getItem('blt_email') || null
 };
 
 // ════════════════════════════════════════
-// CONNEXION
+// FONCTIONS SUPABASE
+// Ces fonctions enregistrent / vérifient les utilisateurs dans la base de données
 // ════════════════════════════════════════
-function showLoginModal(callback) {
-  const overlay = document.createElement('div');
-  overlay.style.cssText = `position:fixed;inset:0;background:rgba(0,0,0,0.8);z-index:2000;display:flex;align-items:center;justify-content:center;backdrop-filter:blur(4px);`;
-  overlay.innerHTML = `
-    <div style="background:#1a1a2e;border-radius:16px;padding:32px;max-width:400px;width:90%;border:1px solid rgba(255,255,255,0.1);border-top:3px solid #c0392b;">
-      <h2 style="font-family:'Bebas Neue',sans-serif;font-size:24px;color:#fff;letter-spacing:2px;margin-bottom:8px;">ACCÈS À VOS COPIES</h2>
-      <p style="color:rgba(255,255,255,0.5);font-size:13px;margin-bottom:24px;line-height:1.6;">Entrez votre email pour suivre vos copies gratuites et retrouver votre accès si vous avez déjà payé.</p>
-      <input id="loginEmail" type="email" placeholder="votre@email.fr" style="width:100%;padding:12px 14px;border-radius:8px;border:1.5px solid rgba(255,255,255,0.15);background:rgba(255,255,255,0.07);color:#fff;font-family:'Outfit',sans-serif;font-size:14px;box-sizing:border-box;outline:none;margin-bottom:12px;" />
-      <div id="loginMsg" style="font-size:12px;color:#f87171;min-height:16px;margin-bottom:12px;"></div>
-      <button id="loginSubmit" style="width:100%;padding:13px;background:#c0392b;color:#fff;border:none;border-radius:8px;font-family:'Outfit',sans-serif;font-size:15px;font-weight:700;cursor:pointer;">Continuer →</button>
-      <p style="text-align:center;font-size:11px;color:rgba(255,255,255,0.25);margin-top:14px;">Aucun mot de passe requis. Votre email est uniquement utilisé pour gérer vos copies.</p>
-    </div>`;
-  document.body.appendChild(overlay);
-  const input = overlay.querySelector('#loginEmail');
-  const msg   = overlay.querySelector('#loginMsg');
-  const btn   = overlay.querySelector('#loginSubmit');
-  input.focus();
-  btn.addEventListener('click', async () => {
-    const email = input.value.trim().toLowerCase();
-    if (!email || !email.includes('@')) { msg.textContent = "Merci d'entrer un email valide."; return; }
-    btn.textContent = '⏳ Vérification…'; btn.disabled = true;
-    try {
-      const res  = await fetch('/.netlify/functions/check-user', { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({ email }) });
-      const data = await res.json();
-      state.email = email; state.paid = data.paid; state.copyCount = data.copy_count;
-      localStorage.setItem('blt_email', email);
-      document.body.removeChild(overlay);
-      updateCounterUI();
-      if (callback) callback();
-    } catch(e) { msg.textContent = 'Erreur de connexion. Vérifiez votre internet.'; btn.textContent = 'Continuer →'; btn.disabled = false; }
-  });
-  input.addEventListener('keydown', (e) => { if (e.key === 'Enter') btn.click(); });
+
+// Appelée quand quelqu'un copie pour la 1ère fois : on enregistre son adresse email
+async function saveUserToDB(email) {
+  try {
+    // "upsert" = "insère si nouveau, met à jour si déjà existant"
+    const { error } = await db.from('users').upsert(
+      { email: email, copy_count: state.copyCount, paid: false },
+      { onConflict: 'email' }
+    );
+    if (error) console.warn('Erreur enregistrement utilisateur:', error.message);
+  } catch(e) { console.warn('Supabase inaccessible:', e); }
 }
 
-async function initUser() {
-  if (!state.email) return;
+// Met à jour le compteur de copies dans la base de données
+async function updateCopyCountInDB() {
+  if (!state.userEmail) return;
   try {
-    const res  = await fetch('/.netlify/functions/check-user', { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({ email: state.email }) });
-    const data = await res.json();
-    state.paid = data.paid; state.copyCount = data.copy_count;
-    updateCounterUI();
-  } catch(e) {
-    state.copyCount = parseInt(localStorage.getItem('blt_copies') || '0', 10);
-  }
+    await db.from('users')
+      .update({ copy_count: state.copyCount })
+      .eq('email', state.userEmail);
+  } catch(e) { /* silencieux */ }
 }
+
+// Vérifie si l'utilisateur a payé (appelée au chargement de la page)
+async function checkIfPaidInDB(email) {
+  try {
+    const { data } = await db.from('users')
+      .select('paid, copy_count')
+      .eq('email', email)
+      .single(); // .single() = on attend 1 seule ligne
+    if (data) {
+      if (data.paid) {
+        state.unlocked = true;
+        localStorage.setItem('blt_unlocked', '1');
+      }
+      // On prend le max entre le compteur local et celui en base
+      state.copyCount = Math.max(state.copyCount, data.copy_count || 0);
+      localStorage.setItem('blt_copies', state.copyCount);
+      updateCounterUI();
+    }
+  } catch(e) { /* silencieux — on continue sans base de données */ }
+}
+
+// Au chargement, si on connaît déjà l'email, on vérifie le statut payant
+if (state.userEmail) { checkIfPaidInDB(state.userEmail); }
 
 // ════════════════════════════════════════
 // PRÉFIXES PÉRIODE
@@ -2301,37 +2340,34 @@ function generateText(x,y){
 // COMPTEUR & PAYWALL
 // ════════════════════════════════════════
 function updateCounterUI(){
-  const remaining = state.paid ? '∞' : String(Math.max(0, MAX_FREE - state.copyCount));
-  const pct = state.paid ? 0 : Math.min(100,(state.copyCount/MAX_FREE)*100);
-  counterNumEl.textContent = remaining;
-  counterFillEl.style.width = pct+'%';
-  copyLeftBadge.textContent = state.paid ? 'Accès illimité actif ✓' : (MAX_FREE-state.copyCount)+' copies gratuites restantes';
+  const remaining=state.unlocked ? '∞' : String(Math.max(0, MAX_FREE-state.copyCount));
+  const pct=state.unlocked ? 0 : Math.min(100,(state.copyCount/MAX_FREE)*100);
+  counterNumEl.textContent=remaining;
+  counterFillEl.style.width=pct+'%';
+  copyLeftBadge.textContent=state.unlocked
+    ? 'Accès illimité actif ✓'
+    : (MAX_FREE-state.copyCount)+' copies gratuites restantes';
   counterNumEl.classList.remove('warning','danger');
   copyLeftBadge.classList.remove('warning','danger');
-  if(!state.paid && state.copyCount>=20){ counterNumEl.classList.add('danger'); copyLeftBadge.classList.add('danger'); }
-  else if(!state.paid && state.copyCount>=15){ counterNumEl.classList.add('warning'); copyLeftBadge.classList.add('warning'); }
-}
-
-async function incrementCopy(){
-  if(state.paid) return;
-  if(!state.email){ showLoginModal(()=>doCopy()); return; }
-  try {
-    const res  = await fetch('/.netlify/functions/increment-copy', { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({ email: state.email }) });
-    const data = await res.json();
-    if(data.limit_reached){ openPaywall(); return; }
-    state.copyCount = data.copy_count;
-    localStorage.setItem('blt_copies', state.copyCount);
-    updateCounterUI();
-    if(state.copyCount >= MAX_FREE) setTimeout(openPaywall, 800);
-  } catch(e) {
-    state.copyCount++;
-    localStorage.setItem('blt_copies', state.copyCount);
-    updateCounterUI();
-    if(state.copyCount >= MAX_FREE) setTimeout(openPaywall, 800);
+  if(!state.unlocked && state.copyCount>=20){
+    counterNumEl.classList.add('danger');
+    copyLeftBadge.classList.add('danger');
+  } else if(!state.unlocked && state.copyCount>=15){
+    counterNumEl.classList.add('warning');
+    copyLeftBadge.classList.add('warning');
   }
 }
-
-function canCopy(){ return state.paid || state.copyCount < MAX_FREE; }
+function incrementCopy(){
+  if(state.unlocked) return;
+  state.copyCount++;
+  localStorage.setItem('blt_copies', state.copyCount);
+  updateCounterUI();
+  updateCopyCountInDB(); // On enregistre aussi dans la base de données
+  if(state.copyCount>=MAX_FREE){ setTimeout(openPaywall, 800); }
+}
+function openPaywall(){ modalOverlay.classList.add('open'); }
+function closePaywall(){ modalOverlay.classList.remove('open'); }
+function canCopy(){ return state.unlocked || state.copyCount < MAX_FREE; }
 
 // ════════════════════════════════════════
 // GRILLE
@@ -2432,7 +2468,7 @@ copyBtn.addEventListener('click', doCopy);
 outputEl.addEventListener('click',()=>{ if(!outputEl.classList.contains('placeholder-state')) doCopy(); });
 
 document.getElementById('paywallBtn').addEventListener('click',()=>{
-  window.open('https://arlorib.gumroad.com/l/qodwj ', '_blank');
+  window.open('https://votre-lien-gumroad.com/bulletinator-pro', '_blank');
 });
 document.getElementById('dismissBtn').addEventListener('click',()=>{ closePaywall(); });
 
@@ -2456,7 +2492,71 @@ infoPopover.addEventListener('click',(e)=>e.stopPropagation());
 updateAxesLabels();
 buildGrid();
 updateCounterUI();
-initUser();
+
+// ════════════════════════════════════════
+// MODALE EMAIL — capture discrète après la 1ère copie
+// ════════════════════════════════════════
+const emailOverlay = document.getElementById('emailOverlay');
+const emailForm    = document.getElementById('emailForm');
+const emailMsg     = document.getElementById('emailMsg');
+const skipEmailBtn = document.getElementById('skipEmailBtn');
+
+function openEmailModal() {
+  if (state.userEmail) return; // déjà enregistré, on ne redemande pas
+  emailOverlay.classList.add('open');
+}
+
+skipEmailBtn.addEventListener('click', () => {
+  emailOverlay.classList.remove('open');
+  // On note qu'il a refusé pour ne pas le redemander à chaque fois
+  localStorage.setItem('blt_email_skipped', '1');
+});
+
+emailForm.addEventListener('submit', async (e) => {
+  e.preventDefault();
+  const email = document.getElementById('emailInput').value.trim();
+  if (!email || !email.includes('@')) {
+    emailMsg.style.color = '#f87171';
+    emailMsg.textContent = "Veuillez entrer une adresse email valide.";
+    return;
+  }
+  emailMsg.style.color = 'rgba(255,255,255,0.5)';
+  emailMsg.textContent = '⏳ Enregistrement…';
+  state.userEmail = email;
+  localStorage.setItem('blt_email', email);
+  await saveUserToDB(email);
+  await checkIfPaidInDB(email); // vérifie immédiatement s'il a déjà payé
+  emailMsg.style.color = '#4ade80';
+  emailMsg.textContent = '✅ Enregistré !';
+  setTimeout(() => emailOverlay.classList.remove('open'), 900);
+});
+
+// On modifie doCopy pour proposer l'email après la 1ère copie
+const _originalDoCopy = doCopy;
+function doCopyWithEmail(){
+  if(!canCopy()){ openPaywall(); return; }
+  const text=outputEl.textContent||'';
+  if(!text.trim()||outputEl.classList.contains('placeholder-state')) return;
+  navigator.clipboard.writeText(text).then(()=>{
+    copiedBadge.classList.add('show');
+    setTimeout(()=>copiedBadge.classList.remove('show'),1200);
+    incrementCopy();
+    // Après la 1ère copie, on propose d'enregistrer l'email (si pas déjà fait)
+    const skipped = localStorage.getItem('blt_email_skipped');
+    if (!state.userEmail && !skipped && state.copyCount === 1) {
+      setTimeout(openEmailModal, 1500);
+    }
+  }).catch(()=>{
+    copiedBadge.classList.add('show');
+    setTimeout(()=>copiedBadge.classList.remove('show'),1200);
+    incrementCopy();
+  });
+}
+// On remplace les écouteurs existants
+copyBtn.removeEventListener('click', doCopy);
+copyBtn.addEventListener('click', doCopyWithEmail);
+outputEl.removeEventListener('click', doCopy);
+outputEl.addEventListener('click',()=>{ if(!outputEl.classList.contains('placeholder-state')) doCopyWithEmail(); });
 
 // ════════════════════════════════════════
 // FENÊTRE "SUGGÉRER UNE AMÉLIORATION"
