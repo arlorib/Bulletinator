@@ -2467,8 +2467,16 @@ function doCopy(){
 copyBtn.addEventListener('click', doCopy);
 outputEl.addEventListener('click',()=>{ if(!outputEl.classList.contains('placeholder-state')) doCopy(); });
 
+// ════════════════════════════════════════
+// STRIPE — Paiement
+// ════════════════════════════════════════
+const STRIPE_PAYMENT_LINK = 'https://buy.stripe.com/test_14A6oIf3y4rh5hf7nb8ww00';
+
 document.getElementById('paywallBtn').addEventListener('click',()=>{
-  window.open('https://votre-lien-gumroad.com/bulletinator-pro', '_blank');
+  // On ajoute l'email en paramètre si on l'a, pour pré-remplir le formulaire Stripe
+  let url = STRIPE_PAYMENT_LINK;
+  if (state.userEmail) url += '?prefilled_email=' + encodeURIComponent(state.userEmail);
+  window.open(url, '_blank');
 });
 document.getElementById('dismissBtn').addEventListener('click',()=>{ closePaywall(); });
 
@@ -2531,32 +2539,8 @@ emailForm.addEventListener('submit', async (e) => {
   setTimeout(() => emailOverlay.classList.remove('open'), 900);
 });
 
-// On modifie doCopy pour proposer l'email après la 1ère copie
-const _originalDoCopy = doCopy;
-function doCopyWithEmail(){
-  if(!canCopy()){ openPaywall(); return; }
-  const text=outputEl.textContent||'';
-  if(!text.trim()||outputEl.classList.contains('placeholder-state')) return;
-  navigator.clipboard.writeText(text).then(()=>{
-    copiedBadge.classList.add('show');
-    setTimeout(()=>copiedBadge.classList.remove('show'),1200);
-    incrementCopy();
-    // Après la 1ère copie, on propose d'enregistrer l'email (si pas déjà fait)
-    const skipped = localStorage.getItem('blt_email_skipped');
-    if (!state.userEmail && !skipped && state.copyCount === 1) {
-      setTimeout(openEmailModal, 1500);
-    }
-  }).catch(()=>{
-    copiedBadge.classList.add('show');
-    setTimeout(()=>copiedBadge.classList.remove('show'),1200);
-    incrementCopy();
-  });
-}
-// On remplace les écouteurs existants
-copyBtn.removeEventListener('click', doCopy);
-copyBtn.addEventListener('click', doCopyWithEmail);
-outputEl.removeEventListener('click', doCopy);
-outputEl.addEventListener('click',()=>{ if(!outputEl.classList.contains('placeholder-state')) doCopyWithEmail(); });
+// L'email est entièrement optionnel — on ne propose rien automatiquement
+// Le visiteur peut utiliser les 30 copies librement sans jamais donner son email
 
 // ════════════════════════════════════════
 // FENÊTRE "SUGGÉRER UNE AMÉLIORATION"
