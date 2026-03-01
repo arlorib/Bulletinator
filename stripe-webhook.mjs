@@ -39,13 +39,15 @@ export default async (req) => {
     if (email) {
       const db = createClient(SUPABASE_URL, SUPABASE_SECRET_KEY);
 
-      // On cherche l'utilisateur par email et on le passe en "payant"
-      // "upsert" = crée la ligne si elle n'existe pas, met à jour si elle existe
+      // On cherche d'abord si un utilisateur avec cet email existe dans auth.users
+      // puis on met paid = true sur sa ligne dans public.users
       const { error } = await db.from('users').upsert(
         { email: email, paid: true },
         { onConflict: 'email' }
       );
 
+      // Si l'utilisateur n'avait pas encore de compte auth, on crée quand même
+      // la ligne users par email pour qu'elle soit prête quand il créera son compte
       if (error) {
         console.error('Erreur Supabase:', error.message);
         return new Response('DB error', { status: 500 });

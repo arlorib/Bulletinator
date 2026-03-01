@@ -527,6 +527,18 @@
       <div class="counter-num" id="counterNum">30</div>
     </div>
   </div>
+  <button id="pillAuth" style="
+    position:relative; z-index:1;
+    display:flex; align-items:center; gap:8px;
+    padding:8px 16px; border-radius:999px;
+    border:1.5px solid rgba(255,255,255,0.2);
+    background:rgba(255,255,255,0.07);
+    color:rgba(255,255,255,0.75);
+    font-family:'Outfit',sans-serif; font-size:13px; font-weight:500;
+    cursor:pointer; transition:all .15s; white-space:nowrap;
+  ">
+    👤 <span id="pillAuthLabel">Se connecter</span>
+  </button>
 </header>
 
 <div style="display:flex; justify-content:center; padding:12px 24px 0; background:var(--c-bg)">
@@ -567,7 +579,6 @@
       <label>Options</label>
       <div class="pill-group">
         <button class="pill" id="pillAutoCopy" title="Copie l'appréciation dans le presse-papier dès qu'elle est générée">⎘ Copie automatique</button>
-        <button class="pill" id="pillAuth" title="Créer un compte ou se connecter pour retrouver son accès partout">👤 <span id="pillAuthLabel">Se connecter</span></button>
       </div>
     </div>
   </div>
@@ -1092,16 +1103,35 @@ async function onAuthStateChange(session) {
     if (pillAuthLabel) pillAuthLabel.textContent = session.user.email.split('@')[0];
     document.getElementById('pillAuth').classList.add('active');
 
-    // On vérifie son statut payant dans la base
+    // On vérifie son statut payant dans la base (par auth_id ou par email)
     try {
-      const { data } = await db.from('users')
+      let paid = false;
+      const { data: byAuthId } = await db.from('users')
         .select('paid')
         .eq('auth_id', session.user.id)
         .single();
 
-      if (data?.paid) {
-        state.unlocked = true;
+      if (byAuthId) {
+        paid = byAuthId.paid;
+      } else {
+        // Première connexion — on cherche par email (cas : a payé avant de créer un compte)
+        const { data: byEmail } = await db.from('users')
+          .select('paid')
+          .eq('email', session.user.email)
+          .single();
+        if (byEmail) {
+          paid = byEmail.paid;
+          // On lie maintenant l'auth_id à cette ligne
+          await db.from('users')
+            .update({ auth_id: session.user.id })
+            .eq('email', session.user.email);
+        } else {
+          // Nouveau compte sans paiement préalable — on crée la ligne
+          await upsertUserRecord(session.user.id, session.user.email);
+        }
       }
+
+      state.unlocked = paid;
     } catch(e) { /* silencieux */ }
 
     updateCounterUI();
