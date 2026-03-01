@@ -567,6 +567,7 @@
       <label>Options</label>
       <div class="pill-group">
         <button class="pill" id="pillAutoCopy" title="Copie l'appréciation dans le presse-papier dès qu'elle est générée">⎘ Copie automatique</button>
+        <button class="pill" id="pillAuth" title="Créer un compte ou se connecter pour retrouver son accès partout">👤 <span id="pillAuthLabel">Se connecter</span></button>
       </div>
     </div>
   </div>
@@ -665,8 +666,89 @@
 </main>
 
 <!-- ══════════════════════════════════════ -->
+<!-- MODALE AUTHENTIFICATION                -->
+<!-- Inscription, connexion, mdp oublié    -->
+<!-- ══════════════════════════════════════ -->
+<div class="modal-overlay" id="modalAuth">
+  <div class="modal" style="max-width:440px;">
+    <div class="modal-hero" style="padding:20px 24px 16px;">
+      <div class="modal-hero-text">
+        <h2 style="font-size:20px; letter-spacing:1.5px;" id="authTitle">MON <span>COMPTE</span></h2>
+        <p id="authSubtitle">Créez un compte pour retrouver votre accès illimité sur tous vos appareils.</p>
+      </div>
+    </div>
+    <div class="modal-body">
+
+      <!-- Onglets -->
+      <div style="display:flex; gap:6px; margin-bottom:18px;">
+        <button class="pill active" id="tabConnexion" onclick="switchAuthTab('connexion')">Se connecter</button>
+        <button class="pill" id="tabInscription" onclick="switchAuthTab('inscription')">Créer un compte</button>
+      </div>
+
+      <!-- Formulaire connexion -->
+      <form id="formConnexion" style="display:flex; flex-direction:column; gap:10px;">
+        <input id="loginEmail" type="email" placeholder="votre@email.fr" autocomplete="email"
+          style="width:100%; padding:11px 14px; border-radius:8px; border:1.5px solid rgba(255,255,255,0.15); background:rgba(255,255,255,0.08); color:#fff; font-family:'Outfit',sans-serif; font-size:14px; box-sizing:border-box; outline:none;"/>
+        <input id="loginPassword" type="password" placeholder="Mot de passe" autocomplete="current-password"
+          style="width:100%; padding:11px 14px; border-radius:8px; border:1.5px solid rgba(255,255,255,0.15); background:rgba(255,255,255,0.08); color:#fff; font-family:'Outfit',sans-serif; font-size:14px; box-sizing:border-box; outline:none;"/>
+        <div id="msgConnexion" style="font-size:12px; min-height:16px; color:rgba(255,255,255,0.5);"></div>
+        <button type="submit" class="btn-paywall" style="background:#2563eb; box-shadow:0 4px 14px rgba(37,99,235,0.4);">
+          <span>→ Se connecter</span>
+        </button>
+        <button type="button" onclick="switchAuthTab('oublie')"
+          style="background:none; border:none; color:rgba(255,255,255,0.35); font-size:12px; cursor:pointer; font-family:'Outfit',sans-serif; text-align:left; padding:0;">
+          Mot de passe oublié ?
+        </button>
+      </form>
+
+      <!-- Formulaire inscription -->
+      <form id="formInscription" style="display:none; flex-direction:column; gap:10px;">
+        <input id="signupEmail" type="email" placeholder="votre@email.fr" autocomplete="email"
+          style="width:100%; padding:11px 14px; border-radius:8px; border:1.5px solid rgba(255,255,255,0.15); background:rgba(255,255,255,0.08); color:#fff; font-family:'Outfit',sans-serif; font-size:14px; box-sizing:border-box; outline:none;"/>
+        <input id="signupPassword" type="password" placeholder="Choisissez un mot de passe (6 caractères min.)" autocomplete="new-password"
+          style="width:100%; padding:11px 14px; border-radius:8px; border:1.5px solid rgba(255,255,255,0.15); background:rgba(255,255,255,0.08); color:#fff; font-family:'Outfit',sans-serif; font-size:14px; box-sizing:border-box; outline:none;"/>
+        <div id="msgInscription" style="font-size:12px; min-height:16px; color:rgba(255,255,255,0.5);"></div>
+        <button type="submit" class="btn-paywall" style="background:#2563eb; box-shadow:0 4px 14px rgba(37,99,235,0.4);">
+          <span>✓ Créer mon compte</span>
+        </button>
+      </form>
+
+      <!-- Formulaire mot de passe oublié -->
+      <form id="formOublie" style="display:none; flex-direction:column; gap:10px;">
+        <p style="font-size:13px; color:rgba(255,255,255,0.6); margin-bottom:4px;">
+          Entrez votre email, vous recevrez un lien pour réinitialiser votre mot de passe.
+        </p>
+        <input id="oublieEmail" type="email" placeholder="votre@email.fr" autocomplete="email"
+          style="width:100%; padding:11px 14px; border-radius:8px; border:1.5px solid rgba(255,255,255,0.15); background:rgba(255,255,255,0.08); color:#fff; font-family:'Outfit',sans-serif; font-size:14px; box-sizing:border-box; outline:none;"/>
+        <div id="msgOublie" style="font-size:12px; min-height:16px; color:rgba(255,255,255,0.5);"></div>
+        <button type="submit" class="btn-paywall" style="background:#2563eb; box-shadow:0 4px 14px rgba(37,99,235,0.4);">
+          <span>📨 Envoyer le lien</span>
+        </button>
+        <button type="button" onclick="switchAuthTab('connexion')"
+          style="background:none; border:none; color:rgba(255,255,255,0.35); font-size:12px; cursor:pointer; font-family:'Outfit',sans-serif; text-align:left; padding:0;">
+          ← Retour à la connexion
+        </button>
+      </form>
+
+      <!-- Vue connecté -->
+      <div id="viewConnecte" style="display:none; text-align:center;">
+        <p style="color:#4ade80; font-size:15px; font-weight:600; margin-bottom:6px;">✓ Connecté</p>
+        <p id="connectedEmail" style="color:rgba(255,255,255,0.5); font-size:13px; margin-bottom:20px;"></p>
+        <p id="connectedStatus" style="color:rgba(255,255,255,0.7); font-size:13px; margin-bottom:20px;"></p>
+        <button onclick="handleSignOut()" class="btn-paywall" style="background:#7f1d1d; box-shadow:none; width:100%; justify-content:center;">
+          <span>Se déconnecter</span>
+        </button>
+      </div>
+
+      <div style="margin-top:14px;">
+        <button class="btn-dismiss" onclick="document.getElementById('modalAuth').classList.remove('open')">Fermer</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════ -->
 <!-- MODALE DE BIENVENUE                    -->
-<!-- S'affiche uniquement à la 1ère visite  -->
 <!-- ══════════════════════════════════════ -->
 <div class="modal-overlay" id="modalBienvenue" style="align-items:center;">
   <div class="modal" style="max-width:520px;">
@@ -973,7 +1055,6 @@
 <script>
 // ════════════════════════════════════════
 // CONNEXION SUPABASE
-// Supabase = la base de données en ligne qui stocke les utilisateurs
 // ════════════════════════════════════════
 const SUPABASE_URL  = 'https://vvgfdcmysrcnbabtvwjc.supabase.co';
 const SUPABASE_KEY  = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InZ2Z2ZkY215c3JjbmJhYnR2d2pjIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzIwMDg5MjQsImV4cCI6MjA4NzU4NDkyNH0.NtdY55NVX9Ja5fMqN4WnXgZxWx0ksNFx9tJFEwPJ_Hc';
@@ -985,64 +1066,207 @@ const db = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 const MAX_FREE = 30;
 
 const state = {
-  selected:  null,
-  history:   {},
-  niveau:    'neutre',
-  periode:   '',
-  copyCount: parseInt(localStorage.getItem('blt_copies') || '0', 10),
-  unlocked:  localStorage.getItem('blt_unlocked') === '1',
-  userEmail: localStorage.getItem('blt_email') || null
+  selected:   null,
+  history:    {},
+  niveau:     'neutre',
+  periode:    '',
+  copyCount:  parseInt(localStorage.getItem('blt_copies') || '0', 10),
+  unlocked:   false,   // sera mis à jour par l'auth
+  userEmail:  null,
+  autoCopy:   localStorage.getItem('blt_autocopy') === '1',
+  session:    null     // session Supabase Auth
 };
 
 // ════════════════════════════════════════
-// FONCTIONS SUPABASE
-// Ces fonctions enregistrent / vérifient les utilisateurs dans la base de données
+// AUTHENTIFICATION — FONCTIONS
 // ════════════════════════════════════════
 
-// Appelée quand quelqu'un copie pour la 1ère fois : on enregistre son adresse email
-async function saveUserToDB(email) {
-  try {
-    // "upsert" = "insère si nouveau, met à jour si déjà existant"
-    const { error } = await db.from('users').upsert(
-      { email: email, copy_count: state.copyCount, paid: false },
-      { onConflict: 'email' }
-    );
-    if (error) console.warn('Erreur enregistrement utilisateur:', error.message);
-  } catch(e) { console.warn('Supabase inaccessible:', e); }
-}
+// Appelée à chaque changement d'état de connexion
+async function onAuthStateChange(session) {
+  state.session = session;
 
-// Met à jour le compteur de copies dans la base de données
-async function updateCopyCountInDB() {
-  if (!state.userEmail) return;
-  try {
-    await db.from('users')
-      .update({ copy_count: state.copyCount })
-      .eq('email', state.userEmail);
-  } catch(e) { /* silencieux */ }
-}
+  if (session) {
+    // L'utilisateur est connecté
+    state.userEmail = session.user.email;
+    const pillAuthLabel = document.getElementById('pillAuthLabel');
+    if (pillAuthLabel) pillAuthLabel.textContent = session.user.email.split('@')[0];
+    document.getElementById('pillAuth').classList.add('active');
 
-// Vérifie si l'utilisateur a payé (appelée au chargement de la page)
-async function checkIfPaidInDB(email) {
-  try {
-    const { data } = await db.from('users')
-      .select('paid, copy_count')
-      .eq('email', email)
-      .single(); // .single() = on attend 1 seule ligne
-    if (data) {
-      if (data.paid) {
+    // On vérifie son statut payant dans la base
+    try {
+      const { data } = await db.from('users')
+        .select('paid')
+        .eq('auth_id', session.user.id)
+        .single();
+
+      if (data?.paid) {
         state.unlocked = true;
-        localStorage.setItem('blt_unlocked', '1');
       }
-      // On prend le max entre le compteur local et celui en base
-      state.copyCount = Math.max(state.copyCount, data.copy_count || 0);
-      localStorage.setItem('blt_copies', state.copyCount);
-      updateCounterUI();
-    }
-  } catch(e) { /* silencieux — on continue sans base de données */ }
+    } catch(e) { /* silencieux */ }
+
+    updateCounterUI();
+    refreshAuthModal();
+
+  } else {
+    // Déconnecté
+    state.session  = null;
+    state.userEmail = null;
+    state.unlocked  = false;
+    const pillAuthLabel = document.getElementById('pillAuthLabel');
+    if (pillAuthLabel) pillAuthLabel.textContent = 'Se connecter';
+    document.getElementById('pillAuth').classList.remove('active');
+    updateCounterUI();
+    refreshAuthModal();
+  }
 }
 
-// Au chargement, si on connaît déjà l'email, on vérifie le statut payant
-if (state.userEmail) { checkIfPaidInDB(state.userEmail); }
+// Crée ou met à jour la ligne utilisateur dans notre table users
+async function upsertUserRecord(userId, email) {
+  try {
+    await db.from('users').upsert(
+      { auth_id: userId, email: email, paid: false },
+      { onConflict: 'auth_id' }
+    );
+  } catch(e) { console.warn('upsert user:', e); }
+}
+
+// Met à jour la vue de la modale selon l'état connecté/déconnecté
+function refreshAuthModal() {
+  const viewConnecte   = document.getElementById('viewConnecte');
+  const formConnexion  = document.getElementById('formConnexion');
+  const formInscription= document.getElementById('formInscription');
+  const formOublie     = document.getElementById('formOublie');
+  const tabZone        = document.querySelector('#modalAuth .pill-group');
+
+  if (state.session) {
+    // Affiche la vue "connecté"
+    [formConnexion, formInscription, formOublie].forEach(f => { if(f) f.style.display='none'; });
+    if (tabZone) tabZone.style.display = 'none';
+    if (viewConnecte) {
+      viewConnecte.style.display = 'block';
+      document.getElementById('connectedEmail').textContent = state.session.user.email;
+      document.getElementById('connectedStatus').textContent = state.unlocked
+        ? '✓ Accès illimité actif'
+        : `${Math.max(0, MAX_FREE - state.copyCount)} appréciations gratuites restantes`;
+    }
+  } else {
+    // Affiche le formulaire de connexion
+    if (tabZone) tabZone.style.display = 'flex';
+    if (viewConnecte) viewConnecte.style.display = 'none';
+    switchAuthTab('connexion');
+  }
+}
+
+// Bascule entre les onglets connexion / inscription / mot de passe oublié
+function switchAuthTab(tab) {
+  const formConnexion   = document.getElementById('formConnexion');
+  const formInscription = document.getElementById('formInscription');
+  const formOublie      = document.getElementById('formOublie');
+  const tabConnexion    = document.getElementById('tabConnexion');
+  const tabInscription  = document.getElementById('tabInscription');
+
+  formConnexion.style.display   = tab === 'connexion'   ? 'flex' : 'none';
+  formInscription.style.display = tab === 'inscription' ? 'flex' : 'none';
+  formOublie.style.display      = tab === 'oublie'      ? 'flex' : 'none';
+
+  tabConnexion.classList.toggle('active',   tab === 'connexion');
+  tabInscription.classList.toggle('active', tab === 'inscription');
+
+  // Effacer les messages d'erreur en changeant d'onglet
+  ['msgConnexion','msgInscription','msgOublie'].forEach(id => {
+    const el = document.getElementById(id);
+    if (el) el.textContent = '';
+  });
+}
+
+function setMsg(id, text, ok) {
+  const el = document.getElementById(id);
+  if (el) {
+    el.textContent = text;
+    el.style.color = ok ? '#4ade80' : '#f87171';
+  }
+}
+
+// Déconnexion
+async function handleSignOut() {
+  await db.auth.signOut();
+  document.getElementById('modalAuth').classList.remove('open');
+}
+
+// ── Formulaire CONNEXION ──
+document.getElementById('formConnexion').addEventListener('submit', async (e) => {
+  e.preventDefault();
+  const email    = document.getElementById('loginEmail').value.trim();
+  const password = document.getElementById('loginPassword').value;
+  setMsg('msgConnexion', '⏳ Connexion…', true);
+
+  const { error } = await db.auth.signInWithPassword({ email, password });
+  if (error) {
+    setMsg('msgConnexion', 'Email ou mot de passe incorrect.', false);
+  } else {
+    setMsg('msgConnexion', '✓ Connecté !', true);
+    setTimeout(() => document.getElementById('modalAuth').classList.remove('open'), 800);
+  }
+});
+
+// ── Formulaire INSCRIPTION ──
+document.getElementById('formInscription').addEventListener('submit', async (e) => {
+  e.preventDefault();
+  const email    = document.getElementById('signupEmail').value.trim();
+  const password = document.getElementById('signupPassword').value;
+
+  if (password.length < 6) {
+    setMsg('msgInscription', 'Le mot de passe doit faire au moins 6 caractères.', false);
+    return;
+  }
+  setMsg('msgInscription', '⏳ Création du compte…', true);
+
+  const { data, error } = await db.auth.signUp({ email, password });
+  if (error) {
+    setMsg('msgInscription', 'Erreur : ' + error.message, false);
+  } else {
+    // On crée la ligne dans notre table users
+    if (data.user) await upsertUserRecord(data.user.id, email);
+    setMsg('msgInscription', '✓ Compte créé ! Vérifiez votre email pour confirmer.', true);
+  }
+});
+
+// ── Formulaire MOT DE PASSE OUBLIÉ ──
+document.getElementById('formOublie').addEventListener('submit', async (e) => {
+  e.preventDefault();
+  const email = document.getElementById('oublieEmail').value.trim();
+  setMsg('msgOublie', '⏳ Envoi…', true);
+
+  const { error } = await db.auth.resetPasswordForEmail(email, {
+    redirectTo: 'https://bulletinator.netlify.app'
+  });
+  if (error) {
+    setMsg('msgOublie', 'Erreur : ' + error.message, false);
+  } else {
+    setMsg('msgOublie', '✓ Email envoyé ! Vérifiez votre boîte mail.', true);
+  }
+});
+
+// ── Bouton pilule "Se connecter" ──
+document.getElementById('pillAuth').addEventListener('click', () => {
+  refreshAuthModal();
+  document.getElementById('modalAuth').classList.add('open');
+});
+
+// Fermeture au clic sur le fond
+document.getElementById('modalAuth').addEventListener('click', function(e) {
+  if (e.target === this) this.classList.remove('open');
+});
+
+// ── Écoute les changements d'état d'authentification (connexion / déconnexion) ──
+db.auth.onAuthStateChange((_event, session) => {
+  onAuthStateChange(session);
+});
+
+// Vérifie la session existante au chargement de la page
+db.auth.getSession().then(({ data: { session } }) => {
+  onAuthStateChange(session);
+});
 
 // ════════════════════════════════════════
 // PRÉFIXES PÉRIODE
@@ -2576,8 +2800,6 @@ function incrementCopy(){
   state.copyCount++;
   localStorage.setItem('blt_copies', state.copyCount);
   updateCounterUI();
-  updateCopyCountInDB(); // On enregistre aussi dans la base de données
-  if(state.copyCount>=MAX_FREE){ setTimeout(openPaywall, 800); }
 }
 function openPaywall(){ modalOverlay.classList.add('open'); }
 function closePaywall(){ modalOverlay.classList.remove('open'); }
@@ -2685,8 +2907,8 @@ outputEl.addEventListener('click',()=>{ if(!outputEl.classList.contains('placeho
 const STRIPE_PAYMENT_LINK = 'https://buy.stripe.com/test_14A6oIf3y4rh5hf7nb8ww00';
 
 document.getElementById('paywallBtn').addEventListener('click',()=>{
-  // On ajoute l'email en paramètre si on l'a, pour pré-remplir le formulaire Stripe
   let url = STRIPE_PAYMENT_LINK;
+  // Pré-remplit l'email Stripe si l'utilisateur est connecté
   if (state.userEmail) url += '?prefilled_email=' + encodeURIComponent(state.userEmail);
   window.open(url, '_blank');
 });
@@ -2822,62 +3044,10 @@ showBienvenueIfNeeded();
 
 // Fermeture des modales légales au clic sur le fond
 ['modalMentions','modalCGV','modalRGPD','modalRecuperer'].forEach(id => {
-  document.getElementById(id).addEventListener('click', function(e){
+  const el = document.getElementById(id);
+  if (el) el.addEventListener('click', function(e){
     if(e.target === this) this.classList.remove('open');
   });
-});
-
-// ════════════════════════════════════════
-// MODALE "RÉCUPÉRER MON ACCÈS"
-// ════════════════════════════════════════
-document.getElementById('recupererForm').addEventListener('submit', async (e) => {
-  e.preventDefault();
-  const email = document.getElementById('recupererEmail').value.trim();
-  const msg   = document.getElementById('recupererMsg');
-
-  if (!email || !email.includes('@')) {
-    msg.style.color = '#f87171';
-    msg.textContent = 'Veuillez entrer une adresse email valide.';
-    return;
-  }
-
-  msg.style.color = 'rgba(255,255,255,0.5)';
-  msg.textContent = '⏳ Vérification en cours…';
-
-  try {
-    const { data, error } = await db.from('users')
-      .select('paid, copy_count')
-      .eq('email', email)
-      .single();
-
-    if (error || !data) {
-      // Email inconnu — peut-être qu'il a payé mais on n'a pas son email
-      msg.style.color = '#f87171';
-      msg.textContent = 'Aucun accès trouvé pour cet email. Contactez arlorib@proton.me';
-      return;
-    }
-
-    if (!data.paid) {
-      msg.style.color = '#fbbf24';
-      msg.textContent = 'Cet email n\'est pas associé à un accès illimité.';
-      return;
-    }
-
-    // Email trouvé et payant — on déverrouille localement
-    state.unlocked  = true;
-    state.userEmail = email;
-    localStorage.setItem('blt_unlocked', '1');
-    localStorage.setItem('blt_email', email);
-    updateCounterUI();
-
-    msg.style.color = '#4ade80';
-    msg.textContent = '✅ Accès illimité activé !';
-    setTimeout(() => document.getElementById('modalRecuperer').classList.remove('open'), 1200);
-
-  } catch(err) {
-    msg.style.color = '#f87171';
-    msg.textContent = 'Erreur de connexion. Réessayez dans un instant.';
-  }
 });
 
 // ════════════════════════════════════════
