@@ -462,6 +462,7 @@
       .header-titles h1 { font-size: 28px; }
       main { padding: 18px 14px; }
       .copy-counter { display: none; }
+      #pillAuth { font-size: 12px; padding: 6px 12px; }
     }
     @media (max-width: 420px) {
       :root { --cell: 44px; --gap: 5px; }
@@ -579,6 +580,7 @@
       <label>Options</label>
       <div class="pill-group">
         <button class="pill" id="pillAutoCopy" title="Copie l'appréciation dans le presse-papier dès qu'elle est générée">⎘ Copie automatique</button>
+        <button class="pill" id="pillPro" onclick="openPaywall()" style="border-color:#c0392b; color:#c0392b;" title="Passer à l'accès illimité">⚡ Passer Pro — 2,99 €</button>
       </div>
     </div>
   </div>
@@ -586,6 +588,7 @@
   <div class="grid-section">
     <div style="display:flex; align-items:center; gap:8px; margin-bottom:4px;">
       <span style="font-size:11px; font-weight:700; letter-spacing:0.1em; text-transform:uppercase; color:var(--c-muted);">Sélectionnez un profil</span>
+      <span style="font-size:11px; color:var(--c-muted); font-style:italic;">— cliquez sur la case qui correspond le mieux à votre élève</span>
       <div style="position:relative; display:inline-flex;">
         <button class="info-btn dark" id="infoBtn" aria-label="À propos de cet outil" aria-expanded="false">?</button>
         <div class="info-popover" id="infoPopover" role="tooltip">
@@ -669,12 +672,41 @@
       <button onclick="document.getElementById('modalCGV').classList.add('open')" style="background:none;border:none;font-family:'Outfit',sans-serif;font-size:10px;color:var(--c-muted);cursor:pointer;text-decoration:underline;">CGV</button>
       &nbsp;·&nbsp;
       <button onclick="document.getElementById('modalRGPD').classList.add('open')" style="background:none;border:none;font-family:'Outfit',sans-serif;font-size:10px;color:var(--c-muted);cursor:pointer;text-decoration:underline;">Politique de confidentialité</button>
-      &nbsp;·&nbsp;
-      <button onclick="document.getElementById('modalRecuperer').classList.add('open')" style="background:none;border:none;font-family:'Outfit',sans-serif;font-size:10px;color:var(--c-muted);cursor:pointer;text-decoration:underline;">Récupérer mon accès</button>
+
     </span>
   </footer>
 
 </main>
+
+<!-- Confirmation paiement réussi -->
+<div class="modal-overlay" id="modalPaiementOK">
+  <div class="modal" style="max-width:420px;">
+    <div class="modal-hero" style="padding:24px 28px 20px; background:linear-gradient(135deg, #052e16, #14532d);">
+      <div class="modal-hero-text">
+        <h2 style="font-size:24px; letter-spacing:2px; color:#fff;">🎉 MERCI <span style="color:#4ade80;">!</span></h2>
+        <p style="color:rgba(255,255,255,0.65); margin-top:6px;">Votre paiement a bien été reçu.</p>
+      </div>
+    </div>
+    <div class="modal-body">
+      <p style="font-size:15px; color:#fff; font-weight:600; margin-bottom:10px;">Votre accès illimité est activé.</p>
+      <p style="font-size:13px; color:rgba(255,255,255,0.6); line-height:1.6; margin-bottom:20px;">
+        Connectez-vous avec l'email utilisé lors du paiement pour retrouver votre accès sur tous vos appareils.
+      </p>
+      <div class="modal-cta">
+        <button class="btn-paywall" style="background:#16a34a; box-shadow:0 4px 16px rgba(22,163,74,0.4);" onclick="
+          document.getElementById('modalPaiementOK').classList.remove('open');
+          document.getElementById('modalAuth').classList.add('open');
+          switchAuthTab('connexion');
+        ">
+          <span>→ Me connecter maintenant</span>
+        </button>
+        <button class="btn-dismiss" onclick="document.getElementById('modalPaiementOK').classList.remove('open')">
+          Plus tard
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
 
 <!-- ══════════════════════════════════════ -->
 <!-- MODALE AUTHENTIFICATION                -->
@@ -840,8 +872,8 @@
       </div>
     </div>
     <div class="modal-body">
-      <p class="hook">Vous avez vu ce que ça donne pour une classe.</p>
-      <p class="context">Imaginez la même aide pour toutes vos classes, tous les ans, sans jamais retaper une appréciation.</p>
+      <p class="hook">Vous venez de rédiger 30 appréciations en quelques minutes.</p>
+      <p class="context">Imaginez la même aide pour toutes vos classes, tous les trimestres — sans jamais retaper une appréciation de zéro.</p>
       <ul class="modal-benefits">
         <li>Des heures économisées à chaque trimestre</li>
         <li>Moins de fatigue, plus de temps pour le reste</li>
@@ -859,42 +891,6 @@
 </div>
 
 <!-- Fenêtre demande d'email (apparaît après la 1ère copie) -->
-<div class="modal-overlay" id="emailOverlay">
-  <div class="modal" style="max-width:420px;">
-    <div class="modal-hero" style="padding:20px 24px 18px;">
-      <svg class="modal-hero-robot" width="52" height="52" viewBox="0 0 86 72" fill="none">
-        <rect x="28" y="0" width="4" height="8" fill="#c0392b"/><circle cx="30" cy="2" r="4" fill="#c0392b"/>
-        <rect x="10" y="8" width="40" height="28" rx="4" fill="#222f3e"/><rect x="12" y="10" width="36" height="24" rx="3" fill="#1a2530"/>
-        <rect x="16" y="15" width="10" height="8" rx="2" fill="#c0392b"/><rect x="34" y="15" width="10" height="8" rx="2" fill="#c0392b"/>
-        <rect x="18" y="17" width="6" height="4" rx="1" fill="#ff6b6b" opacity="0.9"/><rect x="36" y="17" width="6" height="4" rx="1" fill="#ff6b6b" opacity="0.9"/>
-      </svg>
-      <div class="modal-hero-text">
-        <h2 style="font-size:20px; letter-spacing:1.5px;">ENREGISTREZ <span>VOTRE ACCÈS</span></h2>
-        <p>Pour retrouver vos copies restantes sur n'importe quel appareil.</p>
-      </div>
-    </div>
-    <div class="modal-body">
-      <form id="emailForm">
-        <input
-          id="emailInput"
-          type="email"
-          placeholder="votre@email.fr"
-          autocomplete="email"
-          style="width:100%; padding:12px 14px; border-radius:8px; border:1.5px solid rgba(255,255,255,0.15); background:rgba(255,255,255,0.08); color:#fff; font-family:'Outfit',sans-serif; font-size:15px; margin-bottom:10px; box-sizing:border-box; outline:none;"
-        />
-        <div id="emailMsg" style="font-size:12px; color:rgba(255,255,255,0.4); margin-bottom:14px; min-height:16px;">
-          Votre email ne sera jamais partagé ni revendu.
-        </div>
-        <div class="modal-cta">
-          <button type="submit" class="btn-paywall" style="background:#2563eb; box-shadow:0 6px 20px rgba(37,99,235,0.4);">
-            <span>✓ Enregistrer mon accès</span>
-          </button>
-          <button type="button" class="btn-dismiss" id="skipEmailBtn">Continuer sans enregistrer</button>
-        </div>
-      </form>
-    </div>
-  </div>
-</div>
 
 <div class="modal-overlay" id="suggestionOverlay">
   <div class="modal" style="max-width:440px;">
@@ -1032,34 +1028,6 @@
 </div>
 
 <!-- Récupérer mon accès -->
-<div class="modal-overlay" id="modalRecuperer">
-  <div class="modal" style="max-width:420px;">
-    <div class="modal-hero" style="padding:20px 24px 18px;">
-      <div class="modal-hero-text">
-        <h2 style="font-size:20px; letter-spacing:1.5px;">🔑 RÉCUPÉRER <span>MON ACCÈS</span></h2>
-        <p>Vous avez déjà acheté Bulletinator Pro ? Entrez votre email pour retrouver votre accès illimité sur cet appareil.</p>
-      </div>
-    </div>
-    <div class="modal-body">
-      <form id="recupererForm">
-        <input
-          id="recupererEmail"
-          type="email"
-          placeholder="votre@email.fr"
-          autocomplete="email"
-          style="width:100%; padding:12px 14px; border-radius:8px; border:1.5px solid rgba(255,255,255,0.15); background:rgba(255,255,255,0.08); color:#fff; font-family:'Outfit',sans-serif; font-size:15px; margin-bottom:10px; box-sizing:border-box; outline:none;"
-        />
-        <div id="recupererMsg" style="font-size:13px; min-height:18px; margin-bottom:14px;"></div>
-        <div class="modal-cta">
-          <button type="submit" class="btn-paywall" style="background:#2563eb; box-shadow:0 6px 20px rgba(37,99,235,0.4);">
-            <span>✓ Récupérer mon accès</span>
-          </button>
-          <button type="button" class="btn-dismiss" onclick="document.getElementById('modalRecuperer').classList.remove('open')">Fermer</button>
-        </div>
-      </form>
-    </div>
-  </div>
-</div>
 
 <div id="tooltip"></div>
 
@@ -1136,6 +1104,8 @@ async function onAuthStateChange(session) {
 
     updateCounterUI();
     refreshAuthModal();
+    const pillPro = document.getElementById('pillPro');
+    if (pillPro) pillPro.style.display = state.unlocked ? 'none' : '';
 
   } else {
     // Déconnecté
@@ -1147,6 +1117,8 @@ async function onAuthStateChange(session) {
     document.getElementById('pillAuth').classList.remove('active');
     updateCounterUI();
     refreshAuthModal();
+    const pillPro2 = document.getElementById('pillPro');
+    if (pillPro2) pillPro2.style.display = '';
   }
 }
 
@@ -2812,17 +2784,26 @@ function updateCounterUI(){
   const pct=state.unlocked ? 0 : Math.min(100,(state.copyCount/MAX_FREE)*100);
   counterNumEl.textContent=remaining;
   counterFillEl.style.width=pct+'%';
-  copyLeftBadge.textContent=state.unlocked
-    ? 'Accès illimité actif ✓'
-    : (MAX_FREE-state.copyCount)+' appréciations gratuites restantes';
+
+  const left = MAX_FREE - state.copyCount;
+  if (state.unlocked) {
+    copyLeftBadge.textContent = 'Accès illimité actif ✓';
+    copyLeftBadge.classList.remove('warning','danger');
+  } else if (left <= 0) {
+    copyLeftBadge.textContent = 'Quota épuisé — connectez-vous ou passez Pro pour continuer';
+    copyLeftBadge.classList.add('danger');
+  } else {
+    copyLeftBadge.textContent = left + ' appréciations gratuites restantes';
+    copyLeftBadge.classList.remove('warning','danger');
+    if (left <= 10) copyLeftBadge.classList.add('warning');
+    if (left <= 5)  { copyLeftBadge.classList.remove('warning'); copyLeftBadge.classList.add('danger'); }
+  }
+
   counterNumEl.classList.remove('warning','danger');
-  copyLeftBadge.classList.remove('warning','danger');
   if(!state.unlocked && state.copyCount>=20){
     counterNumEl.classList.add('danger');
-    copyLeftBadge.classList.add('danger');
   } else if(!state.unlocked && state.copyCount>=15){
     counterNumEl.classList.add('warning');
-    copyLeftBadge.classList.add('warning');
   }
 }
 function incrementCopy(){
@@ -2910,7 +2891,30 @@ document.getElementById('periodeGroup').addEventListener('click',(e)=>{
   if(state.selected) generateText(state.selected.x,state.selected.y);
 });
 regenBtn.addEventListener('click',()=>{
-  if(state.selected) generateText(state.selected.x,state.selected.y);
+  if(!state.selected) return;
+  // "Autre appréciation" ne consomme pas de génération supplémentaire
+  // on génère directement sans passer par la vérification de limite
+  const {x,y} = state.selected;
+  const key=`${x},${y}`;
+  const pool=getPool(x,y);
+  if(!pool.length) return;
+  if(!state.history[key]) state.history[key]=[];
+  const used=state.history[key];
+  let index;
+  if(used.length<pool.length){
+    let attempt=0;
+    do{ index=Math.floor(Math.random()*pool.length); attempt++; }
+    while(used.includes(index)&&attempt<300);
+    if(used.includes(index)){ for(let i=0;i<pool.length;i++) if(!used.includes(i)){index=i;break;} }
+  } else {
+    state.history[key]=[];
+    index=Math.floor(Math.random()*pool.length);
+  }
+  state.history[key].push(index);
+  outputEl.textContent=applyPeriode(pool[index]);
+  outputEl.classList.remove('placeholder-state');
+  outputEl.classList.add('has-text');
+  copyBtn.disabled=false;
 });
 function doCopy(){
   if(!canCopy()){ openPaywall(); return; }
@@ -2940,8 +2944,23 @@ document.getElementById('paywallBtn').addEventListener('click',()=>{
   let url = STRIPE_PAYMENT_LINK;
   // Pré-remplit l'email Stripe si l'utilisateur est connecté
   if (state.userEmail) url += '?prefilled_email=' + encodeURIComponent(state.userEmail);
+  // Stripe redirigera vers cette URL après paiement réussi
+  // (à configurer aussi dans le tableau de bord Stripe → Payment Links → After payment)
   window.open(url, '_blank');
 });
+
+// Détecte un retour depuis Stripe (paramètre ?payment=success dans l'URL)
+(function checkStripeReturn() {
+  const params = new URLSearchParams(window.location.search);
+  if (params.get('payment') === 'success') {
+    // Nettoyer l'URL sans recharger la page
+    window.history.replaceState({}, '', window.location.pathname);
+    // Afficher une modale de confirmation
+    setTimeout(() => {
+      document.getElementById('modalPaiementOK').classList.add('open');
+    }, 500);
+  }
+})();
 document.getElementById('dismissBtn').addEventListener('click',()=>{ closePaywall(); });
 
 // ════════════════════════════════════════
@@ -2968,41 +2987,6 @@ updateCounterUI();
 // ════════════════════════════════════════
 // MODALE EMAIL — capture discrète après la 1ère copie
 // ════════════════════════════════════════
-const emailOverlay = document.getElementById('emailOverlay');
-const emailForm    = document.getElementById('emailForm');
-const emailMsg     = document.getElementById('emailMsg');
-const skipEmailBtn = document.getElementById('skipEmailBtn');
-
-function openEmailModal() {
-  if (state.userEmail) return; // déjà enregistré, on ne redemande pas
-  emailOverlay.classList.add('open');
-}
-
-skipEmailBtn.addEventListener('click', () => {
-  emailOverlay.classList.remove('open');
-  // On note qu'il a refusé pour ne pas le redemander à chaque fois
-  localStorage.setItem('blt_email_skipped', '1');
-});
-
-emailForm.addEventListener('submit', async (e) => {
-  e.preventDefault();
-  const email = document.getElementById('emailInput').value.trim();
-  if (!email || !email.includes('@')) {
-    emailMsg.style.color = '#f87171';
-    emailMsg.textContent = "Veuillez entrer une adresse email valide.";
-    return;
-  }
-  emailMsg.style.color = 'rgba(255,255,255,0.5)';
-  emailMsg.textContent = '⏳ Enregistrement…';
-  state.userEmail = email;
-  localStorage.setItem('blt_email', email);
-  await saveUserToDB(email);
-  await checkIfPaidInDB(email); // vérifie immédiatement s'il a déjà payé
-  emailMsg.style.color = '#4ade80';
-  emailMsg.textContent = '✅ Enregistré !';
-  setTimeout(() => emailOverlay.classList.remove('open'), 900);
-});
-
 // ════════════════════════════════════════
 // MODALE DE BIENVENUE
 // S'affiche uniquement à la toute première visite
@@ -3047,10 +3031,6 @@ pillAutoCopy.addEventListener('click', () => {
 const _generateTextOriginal = generateText;
 // On patch doCopy pour qu'il soit appelable sans vérif de limite
 // (la limite est déjà vérifiée dans generateText)
-function generateTextWithAutoCopy(x, y) {
-  // generateText gère déjà tout, on patche juste l'étape post-génération
-  // via un MutationObserver sur le texte de sortie
-}
 
 // On observe les changements de texte dans la zone de sortie
 // pour déclencher la copie auto après chaque génération
@@ -3073,7 +3053,7 @@ showBienvenueIfNeeded();
 // Le visiteur peut utiliser les 30 copies librement sans jamais donner son email
 
 // Fermeture des modales légales au clic sur le fond
-['modalMentions','modalCGV','modalRGPD','modalRecuperer'].forEach(id => {
+['modalMentions','modalCGV','modalRGPD'].forEach(id => {
   const el = document.getElementById(id);
   if (el) el.addEventListener('click', function(e){
     if(e.target === this) this.classList.remove('open');
