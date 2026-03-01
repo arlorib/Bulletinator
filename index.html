@@ -7,6 +7,8 @@
   <meta name="description" content="Générez des appréciations de bulletin scolaire en un clic. Gratuit pour les 30 premiers. Outil pour enseignants." />
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
+  <!-- Google AdSense -->
+  <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-7246023468850722" crossorigin="anonymous"></script>
   <!-- SDK Supabase : la bibliothèque qui permet au site de parler à la base de données -->
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <style>
@@ -528,7 +530,14 @@
 </header>
 
 <div style="display:flex; justify-content:center; padding:12px 24px 0; background:var(--c-bg)">
-  <div class="ad-banner">Espace publicitaire</div>
+  <!-- Google AdSense — unité de publicité automatique -->
+  <ins class="adsbygoogle"
+    style="display:block; width:100%; max-width:728px; height:90px;"
+    data-ad-client="ca-pub-7246023468850722"
+    data-ad-slot="auto"
+    data-ad-format="horizontal"
+    data-full-width-responsive="true"></ins>
+  <script>(adsbygoogle = window.adsbygoogle || []).push({});</script>
 </div>
 
 <main>
@@ -552,6 +561,12 @@
         <button class="pill" data-value="T3">Trim. 3</button>
         <button class="pill" data-value="S1">Sem. 1</button>
         <button class="pill" data-value="S2">Sem. 2</button>
+      </div>
+    </div>
+    <div class="config-group">
+      <label>Options</label>
+      <div class="pill-group">
+        <button class="pill" id="pillAutoCopy" title="Copie l'appréciation dans le presse-papier dès qu'elle est générée">⎘ Copie automatique</button>
       </div>
     </div>
   </div>
@@ -648,6 +663,51 @@
   </footer>
 
 </main>
+
+<!-- ══════════════════════════════════════ -->
+<!-- MODALE DE BIENVENUE                    -->
+<!-- S'affiche uniquement à la 1ère visite  -->
+<!-- ══════════════════════════════════════ -->
+<div class="modal-overlay" id="modalBienvenue" style="align-items:center;">
+  <div class="modal" style="max-width:520px;">
+    <div class="modal-hero" style="padding:24px 28px 20px; gap:14px;">
+      <svg class="modal-hero-robot" width="64" height="64" viewBox="0 0 86 72" fill="none">
+        <rect x="28" y="0" width="4" height="8" fill="#c0392b"/><circle cx="30" cy="2" r="4" fill="#c0392b"/>
+        <rect x="10" y="8" width="40" height="28" rx="4" fill="#222f3e"/><rect x="12" y="10" width="36" height="24" rx="3" fill="#1a2530"/>
+        <rect x="16" y="15" width="10" height="8" rx="2" fill="#c0392b"/><rect x="34" y="15" width="10" height="8" rx="2" fill="#c0392b"/>
+        <rect x="18" y="17" width="6" height="4" rx="1" fill="#ff6b6b" opacity="0.9"/><rect x="36" y="17" width="6" height="4" rx="1" fill="#ff6b6b" opacity="0.9"/>
+        <rect x="17" y="27" width="26" height="5" rx="1" fill="#2c3e50"/>
+        <rect x="14" y="38" width="32" height="22" rx="3" fill="#222f3e"/>
+        <circle cx="30" cy="52" r="4" fill="#c0392b"/><circle cx="30" cy="52" r="2.5" fill="#ff6b6b" opacity="0.8"/>
+        <rect x="2" y="38" width="10" height="16" rx="3" fill="#222f3e"/><rect x="48" y="38" width="12" height="16" rx="3" fill="#222f3e"/>
+        <rect x="16" y="62" width="12" height="10" rx="2" fill="#222f3e"/><rect x="32" y="62" width="12" height="10" rx="2" fill="#222f3e"/>
+      </svg>
+      <div class="modal-hero-text">
+        <h2 style="font-size:24px; letter-spacing:2px; line-height:1.2;">BIENVENUE SUR<br><span>BULLETINATOR</span></h2>
+        <p style="margin-top:6px;">L'outil pensé pour réconcilier exigence déontologique et vie de famille.</p>
+      </div>
+    </div>
+    <div class="modal-body">
+      <p style="font-size:15px; font-weight:600; color:#fff; margin-bottom:12px; line-height:1.5;">
+        Face à des classes toujours plus chargées, rédiger des appréciations personnalisées pour chaque élève relève du défi permanent.
+      </p>
+      <p style="font-size:13.5px; color:rgba(255,255,255,0.65); line-height:1.7; margin-bottom:16px;">
+        Bulletinator vous propose une grille de profils : sélectionnez la case qui correspond le mieux à votre élève, et obtenez instantanément une appréciation formulée à la troisième personne — neutre, adaptable à toutes les disciplines et à tous les niveaux, prête à être personnalisée en quelques secondes.
+      </p>
+      <ul class="modal-benefits" style="margin-bottom:20px;">
+        <li>Formulations passives et anonymes, valables pour chaque élève quelle que soit la matière</li>
+        <li>30 appréciations gratuites pour découvrir l'outil sans engagement</li>
+        <li>Accès illimité à vie pour 2,99 € — moins qu'une heure de votre temps</li>
+      </ul>
+      <div class="modal-cta">
+        <button class="btn-paywall" id="bienvenueStartBtn" style="background: var(--c-dark); box-shadow: 0 6px 20px rgba(0,0,0,0.3);">
+          <span>🚀 Commencer à générer</span>
+          <span class="price" style="background:rgba(255,255,255,0.1);">30 gratuites</span>
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
 
 <div class="modal-overlay" id="modalOverlay">
   <div class="modal">
@@ -2690,6 +2750,72 @@ emailForm.addEventListener('submit', async (e) => {
   emailMsg.textContent = '✅ Enregistré !';
   setTimeout(() => emailOverlay.classList.remove('open'), 900);
 });
+
+// ════════════════════════════════════════
+// MODALE DE BIENVENUE
+// S'affiche uniquement à la toute première visite
+// ════════════════════════════════════════
+const modalBienvenue = document.getElementById('modalBienvenue');
+
+function showBienvenueIfNeeded() {
+  const deja = localStorage.getItem('blt_welcomed');
+  if (!deja) {
+    modalBienvenue.classList.add('open');
+  }
+}
+
+document.getElementById('bienvenueStartBtn').addEventListener('click', () => {
+  localStorage.setItem('blt_welcomed', '1');
+  modalBienvenue.classList.remove('open');
+});
+
+// Fermeture au clic sur le fond
+modalBienvenue.addEventListener('click', function(e) {
+  if (e.target === this) {
+    localStorage.setItem('blt_welcomed', '1');
+    this.classList.remove('open');
+  }
+});
+
+// ════════════════════════════════════════
+// COPIE AUTOMATIQUE
+// ════════════════════════════════════════
+state.autoCopy = localStorage.getItem('blt_autocopy') === '1';
+
+const pillAutoCopy = document.getElementById('pillAutoCopy');
+if (state.autoCopy) pillAutoCopy.classList.add('active');
+
+pillAutoCopy.addEventListener('click', () => {
+  state.autoCopy = !state.autoCopy;
+  pillAutoCopy.classList.toggle('active', state.autoCopy);
+  localStorage.setItem('blt_autocopy', state.autoCopy ? '1' : '0');
+});
+
+// Surcharge de generateText pour déclencher la copie auto si activée
+const _generateTextOriginal = generateText;
+// On patch doCopy pour qu'il soit appelable sans vérif de limite
+// (la limite est déjà vérifiée dans generateText)
+function generateTextWithAutoCopy(x, y) {
+  // generateText gère déjà tout, on patche juste l'étape post-génération
+  // via un MutationObserver sur le texte de sortie
+}
+
+// On observe les changements de texte dans la zone de sortie
+// pour déclencher la copie auto après chaque génération
+const _observer = new MutationObserver(() => {
+  if (state.autoCopy && !outputEl.classList.contains('placeholder-state')) {
+    const text = outputEl.textContent || '';
+    if (!text.trim()) return;
+    navigator.clipboard.writeText(text).then(() => {
+      copiedBadge.classList.add('show');
+      setTimeout(() => copiedBadge.classList.remove('show'), 1200);
+    }).catch(() => {});
+  }
+});
+_observer.observe(outputEl, { childList: true, subtree: true, characterData: true });
+
+// Lancement de la bienvenue au chargement
+showBienvenueIfNeeded();
 
 // L'email est entièrement optionnel — on ne propose rien automatiquement
 // Le visiteur peut utiliser les 30 copies librement sans jamais donner son email
